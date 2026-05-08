@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantX </title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <span class="icon">💠</span> QuantX
+            </div>
+
+            <div class="control-panel">
+                <label>MARKET UNIVERSE</label>
+                <select id="market-select">
+                    <option value="ind">🇮🇳 NSE Bluechips</option>
+                    <option value="us">🇺🇸 US Tech</option>
+                    <option value="crypto">🪙 Crypto</option>
+                </select>
+
+                <label>WATCHLIST / SEARCH</label>
+                <div class="ticker-input-group">
+                    <input type="text" id="ticker-input" placeholder="Search or Type Ticker (e.g. AAPL)"
+                        autocomplete="off">
+                    <button id="add-ticker-btn" title="Add Ticker">+</button>
+                    <div id="suggestions" class="suggestions-dropdown hidden"></div>
+                </div>
+                <small style="display:block; margin:-10px 0 15px; font-size:10px; color:var(--text-muted);">
+                    💡 Type <strong>ANY</strong> symbol and press Enter (e.g. BTC-USD, RELIANCE.NS)
+                </small>
+
+                <!-- Selected Tickers Display -->
+                <div id="selected-tickers" class="selected-tickers-display"></div>
+
+                <div id="ticker-list" class="ticker-list">
+                    <!-- Ticker Items Injected Here -->
+                </div>
+
+                <button id="run-btn" class="run-btn">INITIALIZE ALGO ⚡</button>
+                <div style="display:flex; gap:8px; margin-top:10px;">
+                    <button onclick="window.exportReport()" class="run-btn"
+                        style="flex:1; background:var(--bg-card); border:1px solid var(--border); font-size:11px;">📄
+                        EXPORT</button>
+                    <button id="mic-btn" class="run-btn"
+                        style="flex:1; background:var(--bg-card); border:1px solid var(--border); font-size:11px;">🎤
+                        VOICE CMD</button>
+                </div>
+            </div>
+
+            <div class="status-panel">
+                <div class="status-item">
+                    <span>API STATUS</span>
+                    <span class="status-ok">ONLINE</span>
+                </div>
+                <div class="status-item">
+                    <span>LATENCY</span>
+                    <span>--ms</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="header-title">
+                    <h1>MARKET INTELLIGENCE TERMINAL</h1>
+                    <small>Real-time AI Analysis • Multi-Agent System</small>
+                </div>
+
+                <div class="header-actions" style="display:flex; gap:16px; align-items:center;">
+                    <div class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Theme">
+                        <span id="theme-icon">🌙</span>
+                    </div>
+                    <div class="system-mode">
+                        <span class="dot"></span> LIVE FEED
+                    </div>
+                </div>
+            </header>
+
+            <!-- Portfolio Overview Panel -->
+            <div id="portfolio-overview" class="portfolio-panel hidden">
+                <div class="overview-grid">
+                    <div class="overview-stat">
+                        <div class="stat-label">ASSETS TRACKED</div>
+                        <div class="stat-value" id="total-assets">0</div>
+                    </div>
+                    <div class="overview-stat">
+                        <div class="stat-label">AVG CONFIDENCE</div>
+                        <div class="stat-value" id="avg-confidence">--</div>
+                    </div>
+                    <div class="overview-stat">
+                        <div class="stat-label">BEST PERFORMER</div>
+                        <div class="stat-value" id="best-performer">--</div>
+                    </div>
+                    <div class="overview-stat">
+                        <div class="stat-label">WORST PERFORMER</div>
+                        <div class="stat-value" id="worst-performer">--</div>
+                    </div>
+                    <div class="overview-stat">
+                        <div class="stat-label">MARKET REGIME</div>
+                        <div class="stat-value" id="market-regime">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="loading-overlay" class="hidden">
+                <div class="spinner"></div>
+                <div class="loading-text">PROCESSING QUANT DATA...</div>
+            </div>
+
+            <!-- Comparison Mode Container -->
+            <div id="comparison-container" class="hidden"></div>
+
+            <div id="dashboard-grid" class="dashboard-grid">
+                <!-- Javascript will inject Cards here -->
+                <div class="empty-state">
+                    <h2>READY TO ANALYZE</h2>
+                    <p>Select assets and click Initialize.</p>
+                </div>
+            </div>
+
+            <!-- NEWS TICKER FOOTER -->
+            <div class="news-ticker">
+                <div class="ticker-label">LIVE INTEL</div>
+                <div class="ticker-content-wrapper">
+                    <div id="news-content" class="ticker-content">
+                        Waiting for market data...
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <div id="shortcuts-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>⌨️ Keyboard Shortcuts</h2>
+            <div class="shortcuts-grid">
+                <div class="shortcut-item"><kbd>/</kbd> Focus Search</div>
+                <div class="shortcut-item"><kbd>ESC</kbd> Close/Clear</div>
+                <div class="shortcut-item"><kbd>C</kbd> Toggle Compare</div>
+                <div class="shortcut-item"><kbd>E</kbd> Export Report</div>
+                <div class="shortcut-item"><kbd>?</kbd> Show This Help</div>
+            </div>
+            <button onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="tickers.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
